@@ -48,13 +48,25 @@ export default function Layout({ children }) {
       <Head>
         <title>Rama Subba Reddy</title>
         <meta name="viewport" content="initial-scale=1.0, width=device-width" />
-        <script async src="https://www.googletagmanager.com/gtag/js?id=GA_TRACKING_ID"></script>
+         {/* Open Graph Meta Tags */}
+         <meta property="og:title" content="Rama Subba Reddy - Senior Software Engineer" />
+        <meta property="og:description" content="Hi, I'm Rama! I am a Senior Software Engineer with a passion for developing impactful web applications." />
+        <meta property="og:image" content="https://therama.dev/therama-dev-mobile.png" />
+        <meta property="og:url" content="https://therama.dev" />
+        <meta property="og:type" content="website" />
+
+        {/* Twitter Card Meta Tags */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Rama Subba Reddy - Senior Software Engineer" />
+        <meta name="twitter:description" content="Hi, I'm Rama! I am a Senior Software Engineer with a passion for developing impactful web applications." />
+        <meta name="twitter:image" content="https://therama.dev/therama-dev-large.png" />
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-XJRSB73WJX"></script>
         <script>
           {`
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
-            gtag('config', 'GA_TRACKING_ID');
+            gtag('config', 'G-XJRSB73WJX');
           `}
         </script>
       </Head>
