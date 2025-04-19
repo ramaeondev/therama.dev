@@ -60,6 +60,9 @@ export default function Layout({ children }) {
         <meta name="twitter:title" content="Rama Subba Reddy - Senior Software Engineer" />
         <meta name="twitter:description" content="Hi, I'm Rama! I am a Senior Software Engineer with a passion for developing impactful web applications." />
         <meta name="twitter:image" content="https://therama.dev/therama-dev-large.png" />
+
+        {/* Google Analytics */}
+
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-XJRSB73WJX"></script>
         <script>
           {`
@@ -97,7 +100,7 @@ export default function Layout({ children }) {
           </Link>
           <button
             className="w-24 py-1 mx-2 text-xs leading-6 tracking-widest border border-gray-300 rounded-full dark:hover:border-pink-500 dark:border-white focus:outline-none hover:text-lightBlue-600 hover:border-lightBlue-600 dark:hover:text-pink-500"
-            onClick={() => window.open('https://rama.cloudnotes.click', '_blank')}
+            onClick={() => window.open('https://portfolio.therama.dev', '_blank')}
           >
             PROFILE
           </button>
