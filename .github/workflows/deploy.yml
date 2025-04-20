@@ -42,8 +42,8 @@ jobs:
       run: |
           VERSION=$(jq -r '.version' package.json)
           STATUS=$(jq -r '.status' package.json)
-          PROJECT_ID=$(jq -r '.status' project_id.json)
-          update_project_version=$(jq -r '.status' update_project_version.json)
+          PROJECT_ID=$(jq -r '.project_id' package.json)
+          update_project_version=$(jq -r '.update_project_version' package.json)
   
           echo "Version: $VERSION"
           echo "Status: $STATUS"
