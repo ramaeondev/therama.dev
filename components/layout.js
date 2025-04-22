@@ -104,6 +104,12 @@ export default function Layout({ children }) {
           >
             PROFILE
           </button>
+          <button
+            className="w-24 py-1 mx-2 text-xs leading-6 tracking-widest border border-gray-300 rounded-full dark:hover:border-pink-500 dark:border-white focus:outline-none hover:text-lightBlue-600 hover:border-lightBlue-600 dark:hover:text-pink-500"
+            onClick={() => window.open('https://apps.therama.dev', '_blank')}
+          >
+            APPS
+          </button>
         </motion.div>
         <motion.div
           layoutId="border-div"
