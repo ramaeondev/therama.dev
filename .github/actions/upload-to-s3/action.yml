@@ -1,18 +1,26 @@
 name: Upload to S3
-description: Upload files or folders to an S3 bucket.
+description: Upload a file to an S3 bucket
+
 inputs:
   source:
-    description: 'File or folder path to upload'
+    description: 'The source file path to upload'
     required: true
   destination:
-    description: 'S3 key or prefix to upload to'
+    description: 'The target path (key) in the S3 bucket'
     required: true
   bucket:
-    description: 'S3 bucket name'
+    description: 'The name of the S3 bucket'
     required: true
   region:
-    description: 'AWS region'
+    description: 'The AWS region where the bucket resides'
     required: true
+
 runs:
-  using: 'node20'
-  main: 'upload.js'
+  using: "composite"
+  steps:
+    - name: Upload file to S3
+      shell: bash
+      run: |
+        echo "Uploading ${{ inputs.source }} to s3://${{ inputs.bucket }}/${{ inputs.destination }}"
+        aws s3 cp "${{ inputs.source }}" "s3://${{ inputs.bucket }}/${{ inputs.destination }}" \
+          --region "${{ inputs.region }}"
