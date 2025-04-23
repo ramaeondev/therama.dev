@@ -1,11 +1,6 @@
 name: Log and Update Deployment
 description: Updates the project version and logs deployment to Supabase
 
-inputs:
-  start_time:
-    description: "Start time of deployment"
-    required: true
-
 runs:
   using: "composite"
   steps:

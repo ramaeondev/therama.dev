@@ -1,5 +1,5 @@
 {
-  "name": "therama.dev",
+  "name": "api.platform.cloudnotes.click",
   "version": "1.2.0",
   "private": true,
   "status": "Ready for Production",
@@ -9,37 +9,15 @@
   "description": "A personal website built with Next.js and Tailwind CSS.",
   "author": "Ramaeon",
   "license": "MIT",
-  "homepage": "https://therama.dev",
+  "homepage": "https://platform.cloudnotes.click",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ramaeondev/therama.dev"
+    "url": "https://github.com/ramaeondev/api.cloudnotes.click"
   },
   "keywords": [
-    "nextjs",
-    "tailwindcss",
-    "personal-website",
-    "portfolio"
-  ],
-  "scripts": {
-    "dev": "NODE_OPTIONS=--openssl-legacy-provider next dev",
-    "build": "NODE_OPTIONS=--openssl-legacy-provider next build && next export",
-    "start": "NODE_OPTIONS=--openssl-legacy-provider next start"
-  },
-  "dependencies": {
-    "@fortawesome/fontawesome-free": "^5.15.2",
-    "@fortawesome/fontawesome-svg-core": "^1.2.34",
-    "@fortawesome/free-brands-svg-icons": "^5.15.2",
-    "@fortawesome/free-solid-svg-icons": "^5.15.2",
-    "@fortawesome/react-fontawesome": "^0.1.14",
-    "dark-mode-toggle-animation": "^1.0.0",
-    "framer-motion": "^3.6.2",
-    "next": "11.1.3",
-    "react": "17.0.2",
-    "react-dom": "17.0.2"
-  },
-  "devDependencies": {
-    "autoprefixer": "^10.2.4",
-    "postcss": "^8.2.6",
-    "tailwindcss": "^2.0.3"
-  }
+    "FastAPI",
+    "PostgreSQL",
+    "SQLAlchemy ORM",
+    "JWT with OAuth2"
+  ]
 }
