@@ -1,0 +1,42 @@
+name: Post Project Version to Supabase
+description: Reads version info from package.json and posts it to the Supabase Projects table
+
+inputs:
+  package-path:
+    description: Path to package.json
+    required: false
+    default: package.json
+
+runs:
+  using: "composite"
+  steps:
+    - name: Read and post project version
+      shell: bash
+      run: |
+        PACKAGE_JSON=${{ inputs.package-path }}
+
+        VERSION=$(jq -r '.version' $PACKAGE_JSON)
+        STATUS=$(jq -r '.status' $PACKAGE_JSON)
+        PROJECT_ID=$(jq -r '.project_id' $PACKAGE_JSON)
+        update_project_version=$(jq -r '.update_project_version' $PACKAGE_JSON)
+
+        echo "Version: $VERSION"
+        echo "Status: $STATUS"
+        echo "Project ID: $PROJECT_ID"
+        echo "update_project_version: $update_project_version"
+
+        RESPONSE=$(curl -s -X POST $update_project_version \
+          -H "Content-Type: application/json" \
+          -d '{
+            "project_id": "'"$PROJECT_ID"'",
+            "version": "'"$VERSION"'",
+            "status": "'"$STATUS"'"
+          }')
+
+        echo "$RESPONSE" > deployment-status.json
+ 
+    - name: Upload deployment status as artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: deployment-status
+        path: deployment-status.json
