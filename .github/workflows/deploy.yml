@@ -79,7 +79,7 @@ jobs:
           --paths "/*"
           
     - name: Log and Update Deployment
-      uses: ramaeondev/therama.dev/.github/actions/log-and-update-deployment@master
+      uses: ./.github/actions/log-and-update-deployment
       with:
         start_time: ${{ env.START_TIME }}
         
