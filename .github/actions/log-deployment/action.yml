@@ -1,0 +1,51 @@
+name: Log Deployment to Supabase
+
+inputs:
+  start_time:
+    description: Unix timestamp of deployment start
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Read package.json and log to Supabase
+      shell: bash
+      run: |
+        VERSION=$(jq -r '.version' package.json)
+        STATUS=$(jq -r '.status' package.json)
+        PROJECT_ID=$(jq -r '.project_id' package.json)
+        LOG_DEPLOYMENT=$(jq -r '.log_deployment' package.json)
+        HOME_PAGE=$(jq -r '.homepage' package.json)
+        COMMIT_MESSAGE=$(git log -1 --pretty=%B | sed 's/"/\\"/g')
+
+        END_TIME=$(date +%s)
+        DURATION=$((END_TIME - ${{ inputs.start_time }}))
+        IS_SUCCESS=${{ job.status == 'success' && 'true' || 'false' }}
+
+        JSON_PAYLOAD=$(cat <<EOF
+        {
+          "project_id": "$PROJECT_ID",
+          "version": "$VERSION",
+          "status": "$STATUS",
+          "github_sha": "${{ github.sha }}",
+          "github_ref": "${{ github.ref }}",
+          "actor": "${{ github.actor }}",
+          "commit_message": "$COMMIT_MESSAGE",
+          "deployment_url": "$HOME_PAGE",
+          "duration_in_seconds": $DURATION,
+          "is_success": $IS_SUCCESS
+        }
+        EOF
+        )
+
+        curl -s -X POST "$LOG_DEPLOYMENT" \
+          -H "Content-Type: application/json" \
+          -d "$JSON_PAYLOAD"
+        
+        echo "$RESPONSE" > log-deployment-response.json
+
+    - name: Upload log response as artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: log-deployment-response
+        path: log-deployment-response.json
