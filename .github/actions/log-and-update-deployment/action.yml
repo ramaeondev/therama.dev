@@ -1,0 +1,84 @@
+name: Log and Update Deployment
+description: Updates the project version and logs deployment to Supabase
+
+inputs:
+  start_time:
+    description: "Start time of deployment"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Read package.json
+      shell: bash
+      run: |
+        VERSION=$(jq -r '.version' package.json)
+        STATUS=$(jq -r '.status' package.json)
+        PROJECT_ID=$(jq -r '.project_id' package.json)
+        UPDATE_PROJECT_VERSION=$(jq -r '.update_project_version' package.json)
+        LOG_DEPLOYMENT=$(jq -r '.log_deployment' package.json)
+        HOME_PAGE=$(jq -r '.homepage' package.json)
+        COMMIT_MESSAGE=$(git log -1 --pretty=%B | sed 's/"/\\"/g')
+
+        # Store values for reuse
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
+        echo "STATUS=$STATUS" >> $GITHUB_ENV
+        echo "PROJECT_ID=$PROJECT_ID" >> $GITHUB_ENV
+        echo "UPDATE_PROJECT_VERSION=$UPDATE_PROJECT_VERSION" >> $GITHUB_ENV
+        echo "LOG_DEPLOYMENT=$LOG_DEPLOYMENT" >> $GITHUB_ENV
+        echo "HOME_PAGE=$HOME_PAGE" >> $GITHUB_ENV
+        echo "COMMIT_MESSAGE=$COMMIT_MESSAGE" >> $GITHUB_ENV
+
+    - name: POST to Projects table
+      shell: bash
+      run: |
+        RESPONSE=$(curl -s -X POST "$UPDATE_PROJECT_VERSION" \
+          -H "Content-Type: application/json" \
+          -d '{
+            "project_id": "'"$PROJECT_ID"'",
+            "version": "'"$VERSION"'",
+            "status": "'"$STATUS"'"
+          }')
+
+        echo "$RESPONSE" > deployment-status.json
+
+    - name: Log deployment to Supabase
+      shell: bash
+      run: |
+        END_TIME=$(date +%s)
+        DURATION=$((END_TIME - ${{ inputs.start_time }}))
+        IS_SUCCESS=${{ job.status == 'success' && 'true' || 'false' }}
+
+        JSON_PAYLOAD=$(cat <<EOF
+        {
+          "project_id": "$PROJECT_ID",
+          "version": "$VERSION",
+          "status": "$STATUS",
+          "github_sha": "${{ github.sha }}",
+          "github_ref": "${{ github.ref }}",
+          "actor": "${{ github.actor }}",
+          "commit_message": "$COMMIT_MESSAGE",
+          "deployment_url": "$HOME_PAGE",
+          "duration_in_seconds": $DURATION,
+          "is_success": $IS_SUCCESS
+        }
+        EOF
+        )
+
+        curl -s -X POST "$LOG_DEPLOYMENT" \
+          -H "Content-Type: application/json" \
+          -d "$JSON_PAYLOAD"
+
+        echo "$JSON_PAYLOAD" > log-deployment-response.json
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: deployment-status
+        path: deployment-status.json
+
+    - name: Upload log payload
+      uses: actions/upload-artifact@v4
+      with:
+        name: log-deployment-response
+        path: log-deployment-response.json
