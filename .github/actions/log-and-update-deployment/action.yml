@@ -19,6 +19,7 @@ runs:
   using: "composite"
   steps:
     - name: Read package.json
+      if: always()
       shell: bash
       run: |
         echo "Reading deployment configuration from package.json..."
@@ -67,6 +68,7 @@ runs:
         echo "COMMIT_MESSAGE=$COMMIT_MESSAGE" >> $GITHUB_ENV
 
     - name: POST to Projects table
+      if: always()
       shell: bash
       run: |
         echo "Updating project version in Supabase..."
@@ -93,6 +95,7 @@ runs:
         echo "$RESPONSE" > deployment-status.json
 
     - name: Log deployment to Supabase
+      if: always()
       shell: bash
       run: |
         echo "Logging deployment details..."
@@ -132,6 +135,7 @@ runs:
         echo "$JSON_PAYLOAD" > log-deployment-response.json
     
     - name: Prepare meta files
+      if: always()
       shell: bash
       run: |
         echo "Preparing metadata files..."
@@ -151,6 +155,7 @@ runs:
         echo "REPO_NAME=$REPO_NAME" >> $GITHUB_ENV
         
     - name: Upload README to S3
+      if: always()
       shell: bash
       run: |
         echo "Uploading README to S3..."
