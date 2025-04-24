@@ -3,6 +3,9 @@ description: |
   This action updates the project version in Supabase and logs the deployment details.
   It also uploads the README file to S3 and stores the deployment status and log payload as artifacts.
 author: therama.dev
+branding:
+  icon: "check"
+  color: "blue"
 
 inputs:
   start_time:
@@ -18,6 +21,13 @@ runs:
     - name: Read package.json
       shell: bash
       run: |
+        echo "Reading deployment configuration from package.json..."
+        # Extract required values with error handling
+        if [ ! -f package.json ]; then
+          echo "::error::package.json not found in the repository root"
+          exit 1
+        fi
+
         VERSION=$(jq -r '.version' package.json)
         STATUS=$(jq -r '.status' package.json)
         PROJECT_ID=$(jq -r '.project_id' package.json)
@@ -25,6 +35,15 @@ runs:
         LOG_DEPLOYMENT=$(jq -r '.log_deployment' package.json)
         HOME_PAGE=$(jq -r '.homepage' package.json)
         COMMIT_MESSAGE=$(git log -1 --pretty=%B | sed 's/"/\\"/g')
+
+        # Validate required fields
+        [[ -z "$VERSION" ]] && echo "::error::version not found in package.json" && exit 1
+        [[ -z "$PROJECT_ID" ]] && echo "::error::project_id not found in package.json" && exit 1
+
+        echo "Configuration loaded successfully:"
+        echo "- Version: $VERSION"
+        echo "- Project ID: $PROJECT_ID"
+        echo "- Status: $STATUS"
 
         # Store values for reuse
         echo "VERSION=$VERSION" >> $GITHUB_ENV
@@ -38,6 +57,7 @@ runs:
     - name: POST to Projects table
       shell: bash
       run: |
+        echo "Updating project version in Supabase..."
         RESPONSE=$(curl -s -X POST "$UPDATE_PROJECT_VERSION" \
           -H "Content-Type: application/json" \
           -d '{
@@ -46,14 +66,25 @@ runs:
             "status": "'"$STATUS"'"
           }')
 
+        # Check if request was successful
+        if [[ $(echo "$RESPONSE" | jq -r '.error') != "null" ]]; then
+          echo "::error::Failed to update project version: $RESPONSE"
+          exit 1
+        fi
+
+        echo "Project version updated successfully"
         echo "$RESPONSE" > deployment-status.json
 
     - name: Log deployment to Supabase
       shell: bash
       run: |
+        echo "Logging deployment details..."
         END_TIME=$(date +%s)
         DURATION=$((END_TIME - ${{ inputs.start_time }}))
         IS_SUCCESS=${{ job.status == 'success' && 'true' || 'false' }}
+
+        echo "Deployment duration: $DURATION seconds"
+        echo "Deployment status: $IS_SUCCESS"
 
         JSON_PAYLOAD=$(cat <<EOF
         {
@@ -71,38 +102,52 @@ runs:
         EOF
         )
 
-        curl -s -X POST "$LOG_DEPLOYMENT" \
+        RESPONSE=$(curl -s -X POST "$LOG_DEPLOYMENT" \
           -H "Content-Type: application/json" \
-          -d "$JSON_PAYLOAD"
+          -d "$JSON_PAYLOAD")
+
+        if [[ $(echo "$RESPONSE" | jq -r '.error') != "null" ]]; then
+          echo "::warning::Failed to log deployment: $RESPONSE"
+        else
+          echo "Deployment logged successfully"
+        fi
 
         echo "$JSON_PAYLOAD" > log-deployment-response.json
     
     - name: Prepare meta files
       shell: bash
       run: |
-       # Get repository name and create directories
+        echo "Preparing metadata files..."
+        # Get repository name and create directories
         REPO_NAME=$(basename $GITHUB_REPOSITORY)
         mkdir -p public/meta
         
-        # Copy files with error checking
+        # Copy README with error checking
         if [ -f README.md ]; then
           cp README.md public/meta/${REPO_NAME}.md
+          echo "README.md copied successfully"
         else
-          echo "WARNING: README.md not found"
+          echo "::warning::README.md not found, creating empty file"
           touch public/meta/${REPO_NAME}.md
         fi
-        # Store repo name for other steps
-        echo "REPO_NAME=$REPO_NAME" >> $GITHUB_ENV
 
+        echo "REPO_NAME=$REPO_NAME" >> $GITHUB_ENV
+        
     - name: Upload README to S3
       shell: bash
       run: |
-        # Upload README to S3
+        echo "Uploading README to S3..."
         aws s3 cp \
           public/meta/${{ env.REPO_NAME }}.md \
           s3://${{ inputs.s3_bucket }}/readme/${{ env.REPO_NAME }}.md \
           --content-type "text/markdown; charset=utf-8"
 
+        if [ $? -eq 0 ]; then
+          echo "README uploaded successfully to s3://${{ inputs.s3_bucket }}/readme/${{ env.REPO_NAME }}.md"
+        else
+          echo "::error::Failed to upload README to S3"
+          exit 1
+        fi
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
