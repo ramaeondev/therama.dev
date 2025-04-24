@@ -68,6 +68,7 @@ runs:
         echo "COMMIT_MESSAGE=$COMMIT_MESSAGE" >> $GITHUB_ENV
 
     - name: POST to Projects table
+      id: post-projects 
       if: always()
       shell: bash
       run: |
@@ -95,6 +96,7 @@ runs:
         echo "$RESPONSE" > deployment-status.json
 
     - name: Log deployment to Supabase
+      id: log-deployment 
       if: always()
       shell: bash
       run: |
@@ -172,7 +174,7 @@ runs:
         fi
 
     - name: Upload artifacts
-      if: success() && steps.['POST to Projects table'].outcome == 'success'  # Only if POST step succeeded
+      if: success() && steps.post-projects.outcome == 'success'
       uses: actions/upload-artifact@v4
       with:
         name: deployment-status-${{ github.run_id }}
@@ -180,7 +182,7 @@ runs:
         retention-days: 5
 
     - name: Upload log payload
-      if: success() && steps.['Log deployment to Supabase'].outcome == 'success'  # Only if Log step succeeded
+      if: success() && steps.log-deployment.outcome == 'success'
       uses: actions/upload-artifact@v4
       with:
         name: log-deployment-response-${{ github.run_id }}
