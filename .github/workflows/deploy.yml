@@ -26,26 +26,6 @@ jobs:
     - name: Install dependencies
       run: npm install
 
-    - name: Prepare meta files
-      run: |
-        REPO_NAME=$(basename $GITHUB_REPOSITORY)
-        mkdir -p public/meta
-        cp README.md public/meta/${REPO_NAME}.md
-        cp package.json public/meta/
-        echo "REPO_NAME=$REPO_NAME" >> $GITHUB_ENV
-        
-    - name: Upload README to S3
-      uses: ramaeondev/therama.dev/.github/actions/upload-to-s3@master
-      with:
-        source: public/meta/${{ env.REPO_NAME }}.md
-        destination: readme/${{ env.REPO_NAME }}.md
-        bucket: ${{ secrets.S3_UPLOAD_BUCKET }}
-        region: ${{ secrets.AWS_UPLOAD_REGION }}
-      env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_GLOBAL }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_GLOBAL }}
-
-
     - name: Cache Next.js build
       uses: actions/cache@v3
       with:
@@ -82,4 +62,5 @@ jobs:
       uses: ./.github/actions/log-and-update-deployment
       with:
         start_time: ${{ env.START_TIME }}
+        s3_bucket: ${{ secrets.S3_UPLOAD_BUCKET }}
         
