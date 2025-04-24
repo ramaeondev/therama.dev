@@ -27,14 +27,26 @@ runs:
           echo "::error::package.json not found in the repository root"
           exit 1
         fi
+        # Get commit message with improved handling for GitHub Desktop messages
+        COMMIT_MESSAGE=$(git log -1 --pretty=%B | 
+          sed ':a;N;$!ba;s/\n/ /g' |  # Replace newlines with spaces
+          sed 's/"/\\"/g' |           # Escape quotes
+          sed 's/\\/\\\\/g' |         # Escape backslashes
+          sed 's/[[:cntrl:]]/ /g' |   # Replace control characters
+          sed 's/^[[:space:]]*//g' |  # Trim leading whitespace
+          sed 's/[[:space:]]*$//g' |  # Trim trailing whitespace
+          cut -c1-200)                # Limit length to 200 chars
 
+        # Log the original and processed commit message for debugging
+        echo "Original commit message: $(git log -1 --pretty=%B)"
+        echo "Processed commit message: $COMMIT_MESSAGE"
+        
         VERSION=$(jq -r '.version' package.json)
         STATUS=$(jq -r '.status' package.json)
         PROJECT_ID=$(jq -r '.project_id' package.json)
         UPDATE_PROJECT_VERSION=$(jq -r '.update_project_version' package.json)
         LOG_DEPLOYMENT=$(jq -r '.log_deployment' package.json)
         HOME_PAGE=$(jq -r '.homepage' package.json)
-        COMMIT_MESSAGE=$(git log -1 --pretty=%B | sed 's/"/\\"/g')
 
         # Validate required fields
         [[ -z "$VERSION" ]] && echo "::error::version not found in package.json" && exit 1
