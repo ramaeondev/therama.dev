@@ -4,8 +4,8 @@ description: |
   It also uploads the README file to S3 and stores the deployment status and log payload as artifacts.
 author: therama.dev
 branding:
-  icon: "check"
-  color: "blue"
+  icon: "upload-cloud"  # More descriptive for deployment
+  color: "purple"       # Stands out in marketplace
 
 inputs:
   start_time:
@@ -58,6 +58,8 @@ runs:
       shell: bash
       run: |
         echo "Updating project version in Supabase..."
+        echo "API Endpoint: ${UPDATE_PROJECT_VERSION/#https:\/\/api./https://[MASKED].}"
+        
         RESPONSE=$(curl -s -X POST "$UPDATE_PROJECT_VERSION" \
           -H "Content-Type: application/json" \
           -d '{
@@ -65,14 +67,17 @@ runs:
             "version": "'"$VERSION"'",
             "status": "'"$STATUS"'"
           }')
-
+        
+        # Log response details without sensitive data
+        echo "Response received ($(echo "$RESPONSE" | wc -c) bytes)"
+        
         # Check if request was successful
         if [[ $(echo "$RESPONSE" | jq -r '.error') != "null" ]]; then
-          echo "::error::Failed to update project version: $RESPONSE"
+          echo "::error::Failed to update project version: $(echo "$RESPONSE" | jq -r '.error')"
           exit 1
         fi
-
-        echo "Project version updated successfully"
+        
+        echo "Project version updated successfully ✅"
         echo "$RESPONSE" > deployment-status.json
 
     - name: Log deployment to Supabase

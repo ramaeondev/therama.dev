@@ -59,6 +59,7 @@ jobs:
           --paths "/*"
           
     - name: Log and Update Deployment
+      if: always()
       uses: ./.github/actions/log-and-update-deployment
       with:
         start_time: ${{ env.START_TIME }}
