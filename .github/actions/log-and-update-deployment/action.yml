@@ -172,13 +172,17 @@ runs:
         fi
 
     - name: Upload artifacts
+      if: success() && steps.['POST to Projects table'].outcome == 'success'  # Only if POST step succeeded
       uses: actions/upload-artifact@v4
       with:
-        name: deployment-status
+        name: deployment-status-${{ github.run_id }}
         path: deployment-status.json
+        retention-days: 5
 
     - name: Upload log payload
+      if: success() && steps.['Log deployment to Supabase'].outcome == 'success'  # Only if Log step succeeded
       uses: actions/upload-artifact@v4
       with:
-        name: log-deployment-response
+        name: log-deployment-response-${{ github.run_id }}
         path: log-deployment-response.json
+        retention-days: 5
