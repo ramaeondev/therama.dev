@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion'
-import { faDev, faGithub, faLinkedinIn, faTwitter } from '@fortawesome/free-brands-svg-icons'
+import { faDev, faGithub, faLinkedinIn, faTwitter, faNpm } from '@fortawesome/free-brands-svg-icons'
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Head from 'next/head'
@@ -138,6 +138,13 @@ export default function Layout({ children }) {
             target="_blank"
           >
             <FontAwesomeIcon className="mr-6 text-2xl" icon={faLinkedinIn} />
+          </a>
+          <a
+            className="text-gray-400 dark:text-white hover:text-lightBlue-600 dark:hover:text-pink-500"
+            href="https://www.npmjs.com/~ramaeon"
+            target="_blank"
+          >
+            <FontAwesomeIcon className="mr-6 text-2xl" icon={faNpm} />
           </a>
         </motion.div>
       </div>
