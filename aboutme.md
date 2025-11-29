@@ -1,6 +1,6 @@
 ## About Me
 
-Hi, I'm Rama — a Senior Software Engineer at HCL Tech who loves building high-impact web applications and sharing ideas through side projects like `therama.dev`.
+Hi, I'm Rama — a Senior Software Engineer at Wipro who loves building high-impact web applications and sharing ideas through side projects like `therama.dev`.
 
 ### What I Do
 - Architect and ship performant javascript applications with clean, reusable component patterns.

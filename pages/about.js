@@ -12,7 +12,7 @@ export default function About() {
         className="px-4"
       >
         <div className="mb-6 text-center text-gray-800 dark:text-white">
-          Hi, I'm Rama! I am a Senior Software Engineer at HCL Tech with a passion for developing web
+          Hi, I'm Rama! I am a Senior Software Engineer at Wipro with a passion for developing web
           applications that make a positive impact on peoples lives.
         </div>
         <div className="text-center text-gray-800 dark:text-white">
