@@ -1,13 +1,14 @@
 name: Log Deployment to Supabase
+description: Log deployment metadata to Supabase and upload the response as an artifact.
 
 inputs:
   start_time:
     description: Unix timestamp of deployment start
     required: true
-job_status:
-    required: true
+  job_status:
     description: Status of the job (success or failure)
-    
+    required: true
+
 runs:
   using: "composite"
   steps:
@@ -23,7 +24,7 @@ runs:
 
         END_TIME=$(date +%s)
         DURATION=$((END_TIME - ${{ inputs.start_time }}))
-        if [[ "${{ job.status }}" == "success" ]]; then
+        if [[ "${{ inputs.job_status }}" == "success" ]]; then
           IS_SUCCESS=true
         else
           IS_SUCCESS=false
@@ -48,9 +49,9 @@ runs:
         echo "Payload being sent:"
         echo "$JSON_PAYLOAD"
 
-        curl -s -X POST "$LOG_DEPLOYMENT" \
+        RESPONSE=$(curl -s -X POST "$LOG_DEPLOYMENT" \
           -H "Content-Type: application/json" \
-          -d "$JSON_PAYLOAD"
+          -d "$JSON_PAYLOAD")
         
         echo "$RESPONSE" > log-deployment-response.json
 
