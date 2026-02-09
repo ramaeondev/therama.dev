@@ -10,10 +10,6 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
 
-    steps:
-    - name: Capture start time
-      run: echo "START_TIME=$(date +%s)" >> $GITHUB_ENV
-
     - name: Checkout code
       uses: actions/checkout@v4
 
@@ -23,12 +19,6 @@ jobs:
         node-version: 20
         cache: 'npm'
 
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v3
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_GLOBAL }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_GLOBAL }}
-        aws-region: ${{ secrets.AWS_REGION }}
 
     - name: Deploy to Vercel
       uses: amondnet/vercel-action@v25
@@ -41,10 +31,5 @@ jobs:
         working-directory: ./
         vercel-args: --prod
 
-    - name: Log and Update Deployment
-      if: always()
-      uses: ./.github/actions/log-and-update-deployment
-      with:
-        start_time: ${{ env.START_TIME }}
-        s3_bucket: ${{ secrets.S3_UPLOAD_BUCKET }}
+
         
